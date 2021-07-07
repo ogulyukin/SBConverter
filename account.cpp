@@ -23,3 +23,8 @@ void Account::setEls(QString els)
 {
     this->els = els;
 }
+
+void Account::setFias(QString fias)
+{
+    this->fias = fias;
+}

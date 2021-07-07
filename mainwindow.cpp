@@ -4,6 +4,8 @@
 #include <QFileDialog>
 #include "csvio.h"
 
+#define version "1.04"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -11,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     QMainWindow::setWindowTitle("Конвертер формата Сбербанка");
     filesData = new FilesData();
+    ui->fiasLineEdit->setText("acde8f61-fd56-4cec-a4df-1f033e2a63ee");
 }
 
 MainWindow::~MainWindow()
@@ -49,7 +52,7 @@ void MainWindow::on_outButton_clicked()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "О Программе", "Гулюкин О.В. 2021 Программа для конвертации начислений по новым требованиям сбербанка");
+    QMessageBox::about(this, "О Программе", "Гулюкин О.В. 2021 \nПрограмма для конвертации начислений\nпо новым требованиям сбербанка\nВерсия " + QString(version));
 }
 
 void MainWindow::on_actionAbout_Qt_triggered()
@@ -71,14 +74,14 @@ bool MainWindow::convert(QString filename, QString filename2, QString path)
     QString result = acc_file.getDataFromCsv(&map, &accNumbers, &head);
     if(result != "OK")
     {
-        QMessageBox::information(this,"Ошибка", result);
+        //QMessageBox::information(this,"Ошибка", result);
         return false;
     }
     QMap<QString, Account>::Iterator i;
     for(i = map.begin(); i != map.end(); i++)
     {
         i.value().setEls(accNumbers.value(i.key()));
-        //qInfo() << i.value().getString()
+        i.value().setFias(filesData->fias);
     }
     result = acc_file.saveModifedFile(&map, &head, path);
     map.clear();
@@ -100,6 +103,7 @@ QString MainWindow::fileList(QStringList *list)
 
 void MainWindow::on_resultButton_clicked()
 {
+    filesData->fias = ui->fiasLineEdit->text();
     QStringList::Iterator it;
     int succes = 0;
     int errors = 0;

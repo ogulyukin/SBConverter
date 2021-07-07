@@ -122,6 +122,9 @@
      </widget>
     </item>
     <item>
+     <widget class="QLineEdit" name="fiasLineEdit"/>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
        <spacer name="horizontalSpacer">

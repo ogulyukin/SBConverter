@@ -12,9 +12,10 @@ class Account
     QString summa;
 
 public:
-    explicit Account(QString fio, QString adress, QString accountNumber, QString summa, QString fias = "acde8f61-fd56-4cec-a4df-1f033e2a63ee");
+    explicit Account(QString fio, QString adress, QString accountNumber, QString summa, QString fias = "");
     QString getString();
     void setEls(QString els);
+    void setFias(QString fias);
     bool operator==(const Account other)const
     {
         return this->accountNumber == other.accountNumber;
