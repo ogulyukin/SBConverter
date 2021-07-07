@@ -4,6 +4,8 @@
 #include <QFileDialog>
 #include "csvio.h"
 
+#define version "1.04"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -50,7 +52,7 @@ void MainWindow::on_outButton_clicked()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "О Программе", "Гулюкин О.В. 2021 Программа для конвертации начислений по новым требованиям сбербанка");
+    QMessageBox::about(this, "О Программе", "Гулюкин О.В. 2021 \nПрограмма для конвертации начислений\nпо новым требованиям сбербанка\nВерсия " + QString(version));
 }
 
 void MainWindow::on_actionAbout_Qt_triggered()
