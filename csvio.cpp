@@ -2,21 +2,22 @@
 #include <QTextCodec>
 #include <QFile>
 #include <QtCore>
+#include <QTextStream>
 
-std::string csvIO::getFilename() const
+QString csvIO::getFilename() const
 {
     return filename02;
 }
 
-ofstream& csvIO::openFile(QString fileName, ofstream &ofstr)
-{
-    ofstr.open(fileName.toStdString());
-    if(!ofstr.is_open())
-    {
-        qFatal("Can not open file for saving information!!!");
-    }
-    return ofstr;
-}
+//ofstream& csvIO::openFile(QString fileName, ofstream &ofstr)
+//{
+//    ofstr.open(fileName.toStdString());
+//    if(!ofstr.is_open())
+//    {
+//        qFatal("Can not open file for saving information!!!");
+//    }
+//    return ofstr;
+//}
 
 QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head, QString outPath)
 {
@@ -24,12 +25,12 @@ QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head
     QTextCodec *codec; //set codec for WIN coding
     codec = QTextCodec::codecForName("cp1251");
     QTextCodec::setCodecForLocale(codec);
-    QString temp(filename02.c_str());
+    QString temp = filename02;
     temp = getFileName(temp);
     temp.remove(temp.length() - 4, 4);
     temp += "_ready.txt";
     temp = outPath + "/" + temp;
-    QFile target(codec->fromUnicode(temp));
+    QFile target(temp);
     if (!target.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
     {
         return "Невозможно открыть файл " + temp + " для записи";
@@ -53,61 +54,54 @@ QString csvIO::getDataFromCsv(QMap<QString, Account> *map, QMap<QString, QString
 {
     QTextCodec *codec = QTextCodec::codecForName("cp1251");; //set codec for WIN coding
     QTextCodec::setCodecForLocale(codec);
-    std::ifstream ifstr;
-    std::ifstream ifstr2;
-    ifstr.open(filename01);
-    if(!ifstr.is_open())
+
+    //Loading first file with Accounts
+    QFile file(filename01);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
+        qDebug() << "Невозможно открыть файл с ЛС!";
         return "Невозможно открыть файл с ЛС!";
     }
-    QString reading;
-    char temp[1000];
-    while(!ifstr.eof())
+    QTextStream in(&file);
+    in.setCodec(codec);
+    QString line = in.readLine();
+    while(!line.isNull())
     {
-        ifstr.getline(temp,1000);
-        reading = temp;
-        if (reading != ""){
+        qDebug() << line;
+        if (line != "")
+        {
             QList<QString> list;
-            list = (reading.split(";"));
+            list = (line.split(";"));
             accNumbers->insert(list.at(0),list.at(1));
         }
+        line = in.readLine();
     }
-    ifstr.close();
-    ifstr.open(filename02);
-    if(!ifstr.is_open())
+    file.close();
+    //Loading second file with Data
+    QFile file2(filename02);
+    if(!file2.open(QIODevice::ReadOnly | QIODevice::Text))
     {
+        qDebug() << "Невозможно открыть файл с начислениями!";
         return "Невозможно открыть файл с начислениями!";
     }
-//убрал отсюда
-    while(!ifstr.eof())
+    QTextStream in2(&file2);
+    line = in2.readLine();
+    while(!line.isNull())
     {
-        ifstr.getline(temp,200);
-        reading = codec->toUnicode(temp); //converting to UTF-8
-        //qInfo() << reading;
-        if(reading[0] == "#"){
-            head->append(reading);
-        }else if (reading != ""){
+        qDebug() << line;
+        if(line[0] == "#")
+        {
+            head->append(line);
+        }else if (line != ""){
             QList<QString> list;
-            list = (reading.split(";"));
+            list = (line.split(";"));
             Account *newAccount = new Account(list.at(0), list.at(1), list.at(2), list.at(3));
             map->insert(list.at(2), *newAccount);
         }
+        line = in2.readLine();
     }
-    ifstr.close();
-//    qInfo() << "Now Testing...";
-//    qInfo() << "************************************************************";
-//    foreach(auto i , map->values()){
-//        qInfo() << "Строка " << i.getString() << "\t Key: " << map->key(i);
-//    }
-//    qInfo() << "************************************************************";
-//    foreach(auto i , accNumbers->values()){
-//        qInfo() << "ELS: " << i << "\t LS: " << accNumbers->key(i);
-//    }
-//    qInfo() << "************************************************************";
-//    foreach(auto i, *head)
-//    {
-//        qInfo() << i;
-//    }
+    file2.close();
+
     return "OK";
 }
 
@@ -120,7 +114,7 @@ QString csvIO::getFileName(QString path)
     return list[list.length() - 1];
 }
 
-csvIO::csvIO(string filename01, string filename02) : filename01(filename01), filename02(filename02)
+csvIO::csvIO(QString filename01, QString filename02) : filename01(filename01), filename02(filename02)
 {
 
 }
