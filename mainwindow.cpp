@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include "csvio.h"
 
-#define version "1.04"
+#define version "1.1"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -67,7 +67,7 @@ bool MainWindow::convert(QString filename, QString filename2, QString path)
         QMessageBox::information(this, "Ошибка", "Незаполнены имена файлов или путь к файлам результатов!");
         return false;
     }
-    csvIO acc_file(filename.toStdString(), filename2.toStdString());
+    csvIO acc_file(filename, filename2);
     QMap<QString, Account> map;
     QMap<QString, QString> accNumbers;
     QList<QString> head;
@@ -109,9 +109,11 @@ void MainWindow::on_resultButton_clicked()
     int errors = 0;
     for (it = filesData->dataFiles->begin(); it != filesData->dataFiles->end(); it++)
     {
+        ui->statusbar->showMessage("Обрабатывается: " + *it );
         bool result = convert(filesData->csvFile, *it, filesData->outPath);
         result? succes++ : errors++;
     }
+    ui->statusbar->showMessage("Конертация завершина!", 1000);
     QMessageBox::information(this, "Результат",  "Успешно: " + QString::number(succes)
                              + "\nС Ошибкой " + QString::number(errors), QMessageBox::Close);
 }
