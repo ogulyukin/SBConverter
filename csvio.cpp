@@ -3,6 +3,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "xlsxdocument.h"
+
 QString csvIO::getFilename() const
 {
     return filename02;
@@ -28,11 +30,11 @@ QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head
     ofstr.setCodec(codec); //Установка кодека для записи
     foreach(QString i, *head)
     {
-        ofstr << i << "/n";
+        ofstr << i << Qt::endl;
     }
     foreach(Account i, *map)
     {
-        ofstr << i.getString() << "/n";
+        ofstr << i.getString() << Qt::endl;
     }
 
      target.close();
@@ -44,30 +46,29 @@ QString csvIO::getDataFromCsv(QMap<QString, Account> *map, QMap<QString, QString
     QTextCodec *codec = QTextCodec::codecForName("cp1251");; //set codec for WIN coding
     QTextCodec::setCodecForLocale(codec);
 
-    //Loading first file with Accounts
-    QFile file(filename01);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    //Loading first file with Accounts from xlsx файла
+    QXlsx::Document doc(filename01);
+    if (!doc.load())
     {
         qDebug() << "Невозможно открыть файл с ЛС!";
         return "Невозможно открыть файл с ЛС!";
     }
-    QTextStream in(&file);
-    in.setCodec(codec);
-    QString line = in.readLine();
-    while(!line.isNull())
+    int xCount = 2;
+    QString acc01 = doc.read(xCount,1).toString();
+    QString acc02 = doc.read(xCount,2).toString();
+    while(acc01 != "")
     {
-        qDebug() << line;
-        if (line != "")
+        //qDebug() << acc01 << "\t" << acc02;
+        if (acc01 != "")
         {
-            QList<QString> list;
-            list = (line.split(";"));
-            if (list.length() < 2)
-                return "Неверный формат файла с Лицевыми счетами!";
-            accNumbers->insert(list.at(0),list.at(1));
+            accNumbers->insert(acc01, acc02);
         }
-        line = in.readLine();
+        xCount++;
+        acc01 = doc.read(xCount,1).toString();
+        acc02 = doc.read(xCount,2).toString();
     }
-    file.close();
+
+
     //Loading second file with Data
     QFile file2(filename02);
     if(!file2.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -76,7 +77,7 @@ QString csvIO::getDataFromCsv(QMap<QString, Account> *map, QMap<QString, QString
         return "Невозможно открыть файл с начислениями!";
     }
     QTextStream in2(&file2);
-    line = in2.readLine();
+    QString line = in2.readLine();
     while(!line.isNull())
     {
         qDebug() << line;
