@@ -31,7 +31,10 @@ private slots:
 private:
     Ui::MainWindow *ui;
     FilesData *filesData;
+    QString defaultDataPath;
+    QString defaultFias;
     QString fileList(QStringList *list);
     bool convert(QString filename, QString filename2, QString path);
+    void loadSettings();
 };
 #endif // MAINWINDOW_H

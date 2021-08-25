@@ -3,17 +3,21 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include "csvio.h"
+#include <QSettings>
 
-#define version "2.0"
+#define version "2.1"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QMainWindow::setWindowTitle("Конвертер формата Сбербанка");
+    QMainWindow::setWindowTitle("Конвертер формата для Сбербанка");
     filesData = new FilesData();
-    ui->fiasLineEdit->setText("acde8f61-fd56-4cec-a4df-1f033e2a63ee");
+    loadSettings();
+    ui->resultLabel->setText(filesData->outPath);
+    ui->fiasLineEdit->setText(defaultFias);
+    ui->csvLabel->setText(filesData->csvFile);
 }
 
 MainWindow::~MainWindow()
@@ -25,8 +29,8 @@ MainWindow::~MainWindow()
 void MainWindow::on_csvButton_clicked()
 {
     filesData->csvFile = QFileDialog::getOpenFileName(this, "Open File",
-                                                        QDir::currentPath(),
-                                                        tr("xlsx files (*.xlsx);;All files (*.*)"));
+                                                      QDir::currentPath(),
+                                                      tr("xlsx files (*.xlsx);;All files (*.*)"));
     ui->csvLabel->setText(filesData->csvFile);
     qDebug() << "xlsx file choosen : " << filesData->csvFile;
 }
@@ -34,11 +38,17 @@ void MainWindow::on_csvButton_clicked()
 
 void MainWindow::on_filesButton_clicked()
 {
+    if(defaultDataPath == "")
+        defaultDataPath = QDir::currentPath();
     *filesData->dataFiles = QFileDialog::getOpenFileNames(this, "Open File",
-                                                        QDir::currentPath(),
+                                                        defaultDataPath,
                                                         tr("Text files (*.txt);;All files (*.*)"));
     ui->filesLabel->setText(fileList(filesData->dataFiles));
     qDebug() << "You choose : " << *filesData->dataFiles;
+    QFileInfo file(filesData->dataFiles->at(0));
+    QFileInfo fInfo(file);
+    defaultDataPath = fInfo.absolutePath();
+    qDebug() << "defaulpDataPath" << defaultDataPath;
 }
 
 
@@ -91,6 +101,17 @@ bool MainWindow::convert(QString filename, QString filename2, QString path)
 
 }
 
+void MainWindow::loadSettings()
+{
+    QSettings settings("SB", "Path");
+    settings.beginGroup("PathToData");
+    filesData->csvFile = settings.value("csvFile", QVariant("")).toString();
+    filesData->outPath = settings.value("outPath", QVariant("")).toString();
+    defaultDataPath = settings.value("dataPath", QVariant("")).toString();
+    defaultFias = settings.value("fias", QVariant("acde8f61-fd56-4cec-a4df-1f033e2a63ee")).toString();
+    settings.endGroup();
+}
+
 QString MainWindow::fileList(QStringList *list)
 {
     QString result = "";
@@ -104,10 +125,9 @@ QString MainWindow::fileList(QStringList *list)
 void MainWindow::on_resultButton_clicked()
 {
     filesData->fias = ui->fiasLineEdit->text();
-    QStringList::Iterator it;
     int succes = 0;
     int errors = 0;
-    for (it = filesData->dataFiles->begin(); it != filesData->dataFiles->end(); it++)
+    for (auto it = filesData->dataFiles->begin(); it != filesData->dataFiles->end(); it++)
     {
         ui->statusbar->showMessage("Обрабатывается: " + *it );
         bool result = convert(filesData->csvFile, *it, filesData->outPath);
@@ -116,5 +136,12 @@ void MainWindow::on_resultButton_clicked()
     ui->statusbar->showMessage("Конертация завершина!", 1000);
     QMessageBox::information(this, "Результат",  "Успешно: " + QString::number(succes)
                              + "\nС Ошибкой " + QString::number(errors), QMessageBox::Close);
+    QSettings settings("SB", "Path");
+        settings.beginGroup("PathToData");
+        settings.setValue("csvFile", filesData->csvFile);
+        settings.setValue("outPath", filesData->outPath);
+        settings.setValue("dataPath", defaultDataPath);
+        settings.setValue("fias", ui->fiasLineEdit->text());
+        settings.endGroup();
 }
 
