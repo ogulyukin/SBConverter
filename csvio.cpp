@@ -1,23 +1,12 @@
 #include "csvio.h"
 #include <QTextCodec>
 #include <QFile>
-#include <QtCore>
 #include <QTextStream>
 
 QString csvIO::getFilename() const
 {
     return filename02;
 }
-
-//ofstream& csvIO::openFile(QString fileName, ofstream &ofstr)
-//{
-//    ofstr.open(fileName.toStdString());
-//    if(!ofstr.is_open())
-//    {
-//        qFatal("Can not open file for saving information!!!");
-//    }
-//    return ofstr;
-//}
 
 QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head, QString outPath)
 {
@@ -39,11 +28,11 @@ QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head
     ofstr.setCodec(codec); //Установка кодека для записи
     foreach(QString i, *head)
     {
-        ofstr << i << endl;
+        ofstr << i << "/n";
     }
     foreach(Account i, *map)
     {
-        ofstr << i.getString() << endl;
+        ofstr << i.getString() << "/n";
     }
 
      target.close();
@@ -72,6 +61,8 @@ QString csvIO::getDataFromCsv(QMap<QString, Account> *map, QMap<QString, QString
         {
             QList<QString> list;
             list = (line.split(";"));
+            if (list.length() < 2)
+                return "Неверный формат файла с Лицевыми счетами!";
             accNumbers->insert(list.at(0),list.at(1));
         }
         line = in.readLine();
@@ -95,6 +86,8 @@ QString csvIO::getDataFromCsv(QMap<QString, Account> *map, QMap<QString, QString
         }else if (line != ""){
             QList<QString> list;
             list = (line.split(";"));
+            if(list.length() < 4)
+                return "Неверный формат файла с Начислениями!";
             Account *newAccount = new Account(list.at(0), list.at(1), list.at(2), list.at(3));
             map->insert(list.at(2), *newAccount);
         }

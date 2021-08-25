@@ -74,7 +74,7 @@ bool MainWindow::convert(QString filename, QString filename2, QString path)
     QString result = acc_file.getDataFromCsv(&map, &accNumbers, &head);
     if(result != "OK")
     {
-        //QMessageBox::information(this,"Ошибка", result);
+        QMessageBox::information(this,"Ошибка", result);
         return false;
     }
     QMap<QString, Account>::Iterator i;
