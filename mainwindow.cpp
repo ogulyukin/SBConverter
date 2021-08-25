@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include "csvio.h"
 
-#define version "1.1"
+#define version "2.0"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -26,9 +26,9 @@ void MainWindow::on_csvButton_clicked()
 {
     filesData->csvFile = QFileDialog::getOpenFileName(this, "Open File",
                                                         QDir::currentPath(),
-                                                        tr("CSV files (*.csv);;All files (*.*)"));
+                                                        tr("xlsx files (*.xlsx);;All files (*.*)"));
     ui->csvLabel->setText(filesData->csvFile);
-    qDebug() << "CSV file choosen : " << filesData->csvFile;
+    qDebug() << "xlsx file choosen : " << filesData->csvFile;
 }
 
 
