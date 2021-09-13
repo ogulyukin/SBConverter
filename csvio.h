@@ -2,18 +2,25 @@
 #define CSVIO_H
 #include <QDebug>
 #include "account.h"
-using namespace std;
+#include <QRandomGenerator>
 
 class csvIO
 {
     QString filename01;
-    QString filename02;
     QString getFileName(QString path);
 public:
-    csvIO(QString filename01, QString filename02);
+    static void loadFiasCodes(QHash<QString, QString> &list, QHash<QString, QString> &numbers, QString &fileName01, QString &fileName02);
+    csvIO(QString filename01);
     QString getFilename() const;
     QString saveModifedFile(QMap<QString, Account> *map, QList<QString> *head, QString outPath);
-    QString getDataFromCsv(QMap<QString, Account> *map, QMap<QString, QString> *accNumbers, QList<QString> *head);
+    QString getDataFromFiles(QMap<QString, Account> *map, QList<QString> *head,
+                             QString defFias, QHash<QString, QString> *fiasCodes);
+private:
+//    QString findFias(QString adress, QString defFias);
+    int getFlat(QString fullAdress);
+    QHash<QString, QString> houseFias;
+    QString getFias(QString account, QHash<QString, QString> *list, QString defFias, QString adress);
+    static QString getHouseAdress(QString fulladress);
 };
 
 #endif // CSVIO_H

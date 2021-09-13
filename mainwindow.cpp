@@ -5,7 +5,7 @@
 #include "csvio.h"
 #include <QSettings>
 
-#define version "2.1"
+#define version "3.0"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->resultLabel->setText(filesData->outPath);
     ui->fiasLineEdit->setText(defaultFias);
     ui->csvLabel->setText(filesData->csvFile);
+    ui->fiasLabel->setText(filesData->fiasFile);
+    QString css = QString("background-color : %1").arg(QColor(Qt::darkGreen).name());
+    ui->resultButton->setStyleSheet(css);
 }
 
 MainWindow::~MainWindow()
@@ -70,35 +73,75 @@ void MainWindow::on_actionAbout_Qt_triggered()
     QApplication::aboutQt();
 }
 
-bool MainWindow::convert(QString filename, QString filename2, QString path)
+
+void MainWindow::on_resultButton_clicked()
 {
-    if (filename == "" || filename2 == "" || path == "")
+    filesData->defaultFias = ui->fiasLineEdit->text();
+    int succes = 0;
+    int errors = 0;
+    if(filesData->csvFile == "")
+    {
+        QMessageBox::information(this, "Ошибка", "Не выбран файл с данными по\n Лицевым счетам!");
+        return;
+    }
+    if(filesData->fiasFile == "")
+    {
+        QMessageBox::information(this, "Предупреждение", "Не выбран файл с объектами учета\nИспользуется ФИАС по умолчанию!");
+    }else
+    {
+        csvIO::loadFiasCodes(fiasCodes, accNumbers, filesData->csvFile ,filesData->fiasFile);
+    }
+    for (auto it = filesData->dataFiles->begin(); it != filesData->dataFiles->end(); it++)
+    {
+        //ui->statusbar->showMessage("Обрабатывается: " + *it );
+        bool result = convert(*it, filesData->outPath);
+        result? succes++ : errors++;
+    }
+    ui->statusbar->showMessage("Конертация завершина!", 1000);
+    QMessageBox::information(this, "Результат",  "Успешно: " + QString::number(succes)
+                             + "\nС Ошибкой " + QString::number(errors), QMessageBox::Close);
+    QSettings settings("SB", "Path");
+        settings.beginGroup("PathToData");
+        settings.setValue("csvFile", filesData->csvFile);
+        settings.setValue("outPath", filesData->outPath);
+        settings.setValue("dataPath", defaultDataPath);
+        settings.setValue("fias", ui->fiasLineEdit->text());
+        settings.setValue("fiasPath", filesData->fiasFile);
+        settings.endGroup();
+}
+
+bool MainWindow::convert(QString filename, QString path)
+{
+    if (filename == "" || path == "")
     {
         QMessageBox::information(this, "Ошибка", "Незаполнены имена файлов или путь к файлам результатов!");
         return false;
     }
-    csvIO acc_file(filename, filename2);
+    csvIO acc_file(filename);
     QMap<QString, Account> map;
-    QMap<QString, QString> accNumbers;
     QList<QString> head;
-    QString result = acc_file.getDataFromCsv(&map, &accNumbers, &head);
+    QString result = acc_file.getDataFromFiles(&map, &head, filesData->defaultFias, &fiasCodes);
     if(result != "OK")
     {
         QMessageBox::information(this,"Ошибка", result);
         return false;
     }
-    QMap<QString, Account>::Iterator i;
-    for(i = map.begin(); i != map.end(); i++)
+    for(auto i = map.begin(); i != map.end(); i++)
     {
-        i.value().setEls(accNumbers.value(i.key()));
-        i.value().setFias(filesData->fias);
+        QString temp = i.value().getAccountNumber().toUpper();
+        QString foundedELS = accNumbers.value(temp);
+        if(foundedELS == "")
+        {
+            QString temp = i.value().getAccountNumber().toLower();
+            foundedELS = accNumbers.value(temp);
+        }
+        i.value().setEls(foundedELS);
+        //i.value().setFias(filesData->defaultFias);//remove this
     }
     result = acc_file.saveModifedFile(&map, &head, path);
     map.clear();
     head.clear();
-    accNumbers.clear();
     return true;
-
 }
 
 void MainWindow::loadSettings()
@@ -109,6 +152,7 @@ void MainWindow::loadSettings()
     filesData->outPath = settings.value("outPath", QVariant("")).toString();
     defaultDataPath = settings.value("dataPath", QVariant("")).toString();
     defaultFias = settings.value("fias", QVariant("acde8f61-fd56-4cec-a4df-1f033e2a63ee")).toString();
+    filesData->fiasFile = settings.value("fiasPath", QVariant("")).toString();
     settings.endGroup();
 }
 
@@ -121,27 +165,12 @@ QString MainWindow::fileList(QStringList *list)
     return result;
 }
 
-
-void MainWindow::on_resultButton_clicked()
+void MainWindow::on_fiasButton_clicked()
 {
-    filesData->fias = ui->fiasLineEdit->text();
-    int succes = 0;
-    int errors = 0;
-    for (auto it = filesData->dataFiles->begin(); it != filesData->dataFiles->end(); it++)
-    {
-        ui->statusbar->showMessage("Обрабатывается: " + *it );
-        bool result = convert(filesData->csvFile, *it, filesData->outPath);
-        result? succes++ : errors++;
-    }
-    ui->statusbar->showMessage("Конертация завершина!", 1000);
-    QMessageBox::information(this, "Результат",  "Успешно: " + QString::number(succes)
-                             + "\nС Ошибкой " + QString::number(errors), QMessageBox::Close);
-    QSettings settings("SB", "Path");
-        settings.beginGroup("PathToData");
-        settings.setValue("csvFile", filesData->csvFile);
-        settings.setValue("outPath", filesData->outPath);
-        settings.setValue("dataPath", defaultDataPath);
-        settings.setValue("fias", ui->fiasLineEdit->text());
-        settings.endGroup();
+    filesData->fiasFile = QFileDialog::getOpenFileName(this, "Open File",
+                                                      QDir::currentPath(),
+                                                      tr("xlsx files (*.xlsx);;All files (*.*)"));
+    ui->fiasLabel->setText(filesData->fiasFile);
+    qDebug() << "xlsx file choosen : " << filesData->fiasFile;
 }
 

@@ -28,13 +28,17 @@ private slots:
 
     void on_resultButton_clicked();
 
+    void on_fiasButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     FilesData *filesData;
     QString defaultDataPath;
     QString defaultFias;
     QString fileList(QStringList *list);
-    bool convert(QString filename, QString filename2, QString path);
+    QHash<QString, QString> fiasCodes;
+    QHash<QString, QString> accNumbers;
+    bool convert(QString filename, QString path);
     void loadSettings();
 };
 #endif // MAINWINDOW_H

@@ -12,6 +12,7 @@ Account::Account(QString fio, QString adress, QString accountNumber, QString sum
     this->adress = adress;
     this->accountNumber = accountNumber;
     this->summa = summa;
+    this->pomNunber = -1;
 }
 
 QString Account::getString()
@@ -27,4 +28,9 @@ void Account::setEls(QString els)
 void Account::setFias(QString fias)
 {
     this->fias = fias;
+}
+
+void Account::setPomNumber(int number)
+{
+    this->pomNunber = number;
 }

@@ -10,7 +10,8 @@ public:
     QStringList* dataFiles;
     QString csvFile;
     QString outPath;
-    QString fias;
+    QString defaultFias;
+    QString fiasFile;
 };
 
 #endif // FILESDATA_H
