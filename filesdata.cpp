@@ -4,6 +4,7 @@ FilesData::FilesData()
 {
     csvFile = "";
     outPath = "";
+    fiasFile = "";
     dataFiles = new QStringList();
 }
 FilesData::~FilesData()
