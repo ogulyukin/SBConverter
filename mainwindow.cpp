@@ -77,37 +77,37 @@ void MainWindow::on_actionAbout_Qt_triggered()
 void MainWindow::on_resultButton_clicked()
 {
     filesData->defaultFias = ui->fiasLineEdit->text();
-    int succes = 0;
-    int errors = 0;
-    if(filesData->csvFile == "")
-    {
-        QMessageBox::information(this, "Ошибка", "Не выбран файл с данными по\n Лицевым счетам!");
-        return;
-    }
-    if(filesData->fiasFile == "")
-    {
-        QMessageBox::information(this, "Предупреждение", "Не выбран файл с объектами учета\nИспользуется ФИАС по умолчанию!");
-    }else
-    {
-        csvIO::loadFiasCodes(fiasCodes, accNumbers, filesData->csvFile ,filesData->fiasFile);
-    }
-    for (auto it = filesData->dataFiles->begin(); it != filesData->dataFiles->end(); it++)
-    {
-        //ui->statusbar->showMessage("Обрабатывается: " + *it );
-        bool result = convert(*it, filesData->outPath);
-        result? succes++ : errors++;
-    }
-    ui->statusbar->showMessage("Конертация завершина!", 1000);
-    QMessageBox::information(this, "Результат",  "Успешно: " + QString::number(succes)
-                             + "\nС Ошибкой " + QString::number(errors), QMessageBox::Close);
-    QSettings settings("SB", "Path");
-        settings.beginGroup("PathToData");
-        settings.setValue("csvFile", filesData->csvFile);
-        settings.setValue("outPath", filesData->outPath);
-        settings.setValue("dataPath", defaultDataPath);
-        settings.setValue("fias", ui->fiasLineEdit->text());
-        settings.setValue("fiasPath", filesData->fiasFile);
-        settings.endGroup();
+        int succes = 0;
+        int errors = 0;
+        if(filesData->csvFile == "")
+        {
+            QMessageBox::information(this, "Ошибка", "Не выбран файл с данными по\n Лицевым счетам!");
+            return;
+        }
+        if(filesData->fiasFile == "")
+        {
+            QMessageBox::information(this, "Предупреждение", "Не выбран файл с объектами учета\nИспользуется ФИАС по умолчанию!");
+        }else
+        {
+            csvIO::loadFiasCodes(fiasCodes, accNumbers, filesData->csvFile ,filesData->fiasFile);
+        }
+        for (auto it = filesData->dataFiles->begin(); it != filesData->dataFiles->end(); it++)
+        {
+            //ui->statusbar->showMessage("Обрабатывается: " + *it );
+            bool result = convert(*it, filesData->outPath);
+            result? succes++ : errors++;
+        }
+        ui->statusbar->showMessage("Конертация завершина!", 1000);
+        QMessageBox::information(this, "Результат",  "Успешно: " + QString::number(succes)
+                                 + "\nС Ошибкой " + QString::number(errors), QMessageBox::Close);
+        QSettings settings("SB", "Path");
+            settings.beginGroup("PathToData");
+            settings.setValue("csvFile", filesData->csvFile);
+            settings.setValue("outPath", filesData->outPath);
+            settings.setValue("dataPath", defaultDataPath);
+            settings.setValue("fias", ui->fiasLineEdit->text());
+            settings.setValue("fiasPath", filesData->fiasFile);
+            settings.endGroup();
 }
 
 bool MainWindow::convert(QString filename, QString path)
