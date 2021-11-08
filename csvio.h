@@ -17,9 +17,9 @@ public:
                              QString defFias, QHash<QString, QString> *fiasCodes);
 private:
 //    QString findFias(QString adress, QString defFias);
-    int getFlat(QString fullAdress);
+    QString getFlat(QString fullAdress);
     QHash<QString, QString> houseFias;
-    QString getFias(QString account, QHash<QString, QString> *list, QString defFias, QString adress);
+    QString getFias(QString account, QHash<QString, QString> *list,/* QString defFias, */QString adress);
     static QString getHouseAdress(QString fulladress);
 };
 

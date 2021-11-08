@@ -18,6 +18,7 @@ QString csvIO::getFilename() const
 QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head, QString outPath)
 {
 
+    qDebug() << "Saving! get" << QString::number(map->size()) << "elements";
     QTextCodec *codec; //set codec for WIN coding
     codec = QTextCodec::codecForName("cp1251");
     QTextCodec::setCodecForLocale(codec);
@@ -40,6 +41,7 @@ QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head
     foreach(Account i, *map)
     {
         ofstr << i.getString() << Qt::endl;
+        qDebug() << i.getString();
     }
 
     target.close();
@@ -49,6 +51,7 @@ QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head
 QString csvIO::getDataFromFiles(QMap<QString, Account> *map, QList<QString> *head, QString defFias,
                                 QHash<QString, QString> *fiasCodes)
 {
+    Q_UNUSED(defFias);
     QTextCodec *codec = QTextCodec::codecForName("cp1251");; //set codec for WIN coding
     QTextCodec::setCodecForLocale(codec);
     //Loading first file with Accounts from xlsx файла
@@ -73,10 +76,22 @@ QString csvIO::getDataFromFiles(QMap<QString, Account> *map, QList<QString> *hea
             list = (line.split(";"));
             if(list.length() < 4)
                 return "Неверный формат файла с Начислениями!";
+            //Записываем всю оставшуюся строку туда где обычно была сумма:
+            QString rest = "";
+            int i = 0;
+            for (auto it = list.begin(); it != list.end();it++)
+            {
+                if(i > 4){
+                    rest += *it + ";";
+                }
+                i++;
+            }
+            rest.chop(1);
+            qDebug() << "This is ther rest: " << rest;
             // Account(QString fio, QString adress, QString accountNumber, QString summa, QString fias = "");
-            Account *newAccount = new Account(list.at(0), list.at(1), list.at(2), list.at(3),
-                                              getFias(list.at(2), fiasCodes, defFias, list.at(1)));
-            map->insert(list.at(2), *newAccount);
+            Account *newAccount = new Account(list.at(0), list.at(3), list.at(4), rest,
+                                              getFias(list.at(4), fiasCodes, /*defFias, */list.at(3)));
+            map->insert(list.at(4), *newAccount);
         }
         line = in2.readLine();
     }
@@ -153,32 +168,40 @@ void csvIO::loadFiasCodes(QHash<QString, QString> &numberFias, QHash<QString, QS
     qDebug() << "Totall in numberFias: " << numberFias.count();
 }
 
-int csvIO::getFlat(QString fullAdress)
+QString csvIO::getFlat(QString fullAdress)
 {
     QStringList list = fullAdress.split(',');
-    return (list.last()).toInt();
+    QStringList last = list.last().split(" ");
+    return last.last();
 }
 
-QString csvIO::getFias(QString account, QHash<QString, QString> *list, QString defFias, QString adress)
+QString csvIO::getFias(QString account, QHash<QString, QString> *list, /*QString defFias, */QString adress)
 {
-    int pomNumber = getFlat(adress);
+    QString pomNumber = getFlat(adress);
+    if(pomNumber == "0")
+        pomNumber = QString::number(QRandomGenerator::global()->bounded(101,200));
+    qDebug() << "Номер помещения: " << pomNumber;
     auto it = list->find(account.toUpper());
     if(it != list->end())
     {
-        QString fias = it.value() + "," + QString::number(pomNumber);
-        //qDebug() << "Фиас идентифицирован для " << account;
+        QString fias = it.value() + "," + pomNumber;
+        qDebug() << "Фиас идентифицирован для " << account;
         return fias;
     }else
     {
         it = list->find(account.toLower());
         if(it != list->end())
         {
-            QString fias = it.value() + "," + QString::number(pomNumber);
-            //qDebug() << "Фиас идентифицирован для " << account;
+            QString fias = it.value() + "," + pomNumber;
+            qDebug() << "Фиас идентифицирован для " << account;
             return fias;
         }
     }
-    return defFias + "," + QString::number(pomNumber);
+    int i = QRandomGenerator::global()->bounded(0,list->size());
+    qDebug() << "i generated: " << i;
+    QString randomFias = list->value((list->keys()).at(i)) + + "," + QString::number(QRandomGenerator::global()->bounded(200,1000));
+    qDebug() << "Random Fias: " + randomFias;
+    return randomFias;
 }
 
 QString csvIO::getHouseAdress(QString fulladress)

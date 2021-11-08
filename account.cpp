@@ -5,19 +5,19 @@ QString Account::getAccountNumber() const
     return accountNumber;
 }
 
-Account::Account(QString fio, QString adress, QString accountNumber, QString summa, QString fias) : fias(fias)
+Account::Account(QString fio, QString adress, QString accountNumber, QString rest, QString fias) : fias(fias)
 {
     this->fio = fio;
     //this->els = els;
     this->adress = adress;
     this->accountNumber = accountNumber;
-    this->summa = summa;
-    this->pomNunber = -1;
+    this->rest = rest;
+    this->pomNunber = "-1";
 }
 
 QString Account::getString()
 {
-    return fio + ";" + els + ";" + fias + ";" + adress + ";" + accountNumber + ";" + summa;
+    return fio + ";" + els + ";" + fias + ";" + adress + ";" + accountNumber + ";" + rest;
 }
 
 void Account::setEls(QString els)
@@ -30,7 +30,7 @@ void Account::setFias(QString fias)
     this->fias = fias;
 }
 
-void Account::setPomNumber(int number)
+void Account::setPomNumber(QString number)
 {
     this->pomNunber = number;
 }
