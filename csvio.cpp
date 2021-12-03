@@ -41,7 +41,7 @@ QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head
     foreach(Account i, *map)
     {
         ofstr << i.getString() << Qt::endl;
-        qDebug() << i.getString();
+        //qDebug() << i.getString();
     }
 
     target.close();
@@ -87,7 +87,7 @@ QString csvIO::getDataFromFiles(QMap<QString, Account> *map, QList<QString> *hea
                 i++;
             }
             rest.chop(1);
-            qDebug() << "This is ther rest: " << rest;
+            //qDebug() << "This is ther rest: " << rest;
             // Account(QString fio, QString adress, QString accountNumber, QString summa, QString fias = "");
             Account *newAccount = new Account(list.at(0), list.at(3), list.at(4), rest,
                                               getFias(list.at(4), fiasCodes, /*defFias, */list.at(3)));
@@ -180,12 +180,12 @@ QString csvIO::getFias(QString account, QHash<QString, QString> *list, /*QString
     QString pomNumber = getFlat(adress);
     if(pomNumber == "0")
         pomNumber = QString::number(QRandomGenerator::global()->bounded(101,200));
-    qDebug() << "Номер помещения: " << pomNumber;
+    //qDebug() << "Номер помещения: " << pomNumber;
     auto it = list->find(account.toUpper());
     if(it != list->end())
     {
         QString fias = it.value() + "," + pomNumber;
-        qDebug() << "Фиас идентифицирован для " << account;
+        //qDebug() << "Фиас идентифицирован для " << account;
         return fias;
     }else
     {
@@ -193,14 +193,14 @@ QString csvIO::getFias(QString account, QHash<QString, QString> *list, /*QString
         if(it != list->end())
         {
             QString fias = it.value() + "," + pomNumber;
-            qDebug() << "Фиас идентифицирован для " << account;
+            //qDebug() << "Фиас идентифицирован для " << account;
             return fias;
         }
     }
     int i = QRandomGenerator::global()->bounded(0,list->size());
-    qDebug() << "i generated: " << i;
+    //qDebug() << "i generated: " << i;
     QString randomFias = list->value((list->keys()).at(i)) + + "," + QString::number(QRandomGenerator::global()->bounded(200,1000));
-    qDebug() << "Random Fias: " + randomFias;
+    //qDebug() << "Random Fias: " + randomFias;
     return randomFias;
 }
 
