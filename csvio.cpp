@@ -7,7 +7,7 @@
 
 csvIO::csvIO(QString filename01) : filename01(filename01)
 {
-
+    filename02 = "";
 }
 
 QString csvIO::getFilename() const
@@ -15,13 +15,18 @@ QString csvIO::getFilename() const
     return filename01;
 }
 
-QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head, QString outPath)
+void csvIO::setOutFileName(QString filename)
+{
+    filename02 = filename;
+}
+
+QString csvIO::saveModifedFile(QMap<QString, Account> *map, QString period, QString outPath)
 {
 
     QTextCodec *codec; //set codec for WIN coding
     codec = QTextCodec::codecForName("cp1251");
     QTextCodec::setCodecForLocale(codec);
-    QString temp = filename01;
+    QString temp = filename02;
     temp = getFileName(temp);
     temp.remove(temp.length() - 4, 4);
     temp += "_ready.txt";
@@ -33,13 +38,15 @@ QString csvIO::saveModifedFile(QMap<QString, Account> *map, QList<QString> *head
     }
     QTextStream ofstr(&target);
     ofstr.setCodec(codec); //Установка кодека для записи
+    /* убрали шапку
     foreach(QString i, *head)
     {
         ofstr << i << Qt::endl;
     }
+    */
     foreach(Account i, *map)
     {
-        ofstr << i.getString() << Qt::endl;
+        ofstr << i.getString(period) << Qt::endl;
     }
 
     target.close();
@@ -82,6 +89,32 @@ QString csvIO::getDataFromFiles(QMap<QString, Account> *map, QList<QString> *hea
     }
     file2.close();
     return "OK";
+}
+
+bool csvIO::getBankAccountsFromFile(QHash<QString, QString> *bankAccounts)
+{
+    QFile file("config.csv");
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Невозможно открыть файл с начислениями!";
+        return false;
+    }
+    QTextStream in(&file);
+    QString line = in.readLine();
+    while(!line.isNull())
+    {
+        qDebug() << line;
+        if (line != "")
+        {
+            QList<QString> list;
+            list = (line.split(";"));
+            if(list.length() < 2) continue;
+            bankAccounts->insert(list[0],list[1]);
+        }
+        line = in.readLine();
+    }
+    file.close();
+    return true;
 }
 
 QString csvIO::getFileName(QString path)
@@ -178,7 +211,8 @@ QString csvIO::getFias(QString account, QHash<QString, QString> *list, QString d
             return fias;
         }
     }
-    return defFias + "," + QString::number(pomNumber);
+    //return defFias + "," + QString::number(pomNumber);
+    return "";
 }
 
 QString csvIO::getHouseAdress(QString fulladress)

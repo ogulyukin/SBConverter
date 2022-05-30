@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     filesData = new FilesData();
     loadSettings();
     ui->resultLabel->setText(filesData->outPath);
-    ui->fiasLineEdit->setText(defaultFias);
+    ui->fiasLineEdit->setText(innOrg);
     ui->csvLabel->setText(filesData->csvFile);
     ui->fiasLabel->setText(filesData->fiasFile);
     QString css = QString("background-color : %1").arg(QColor(Qt::darkGreen).name());
@@ -79,6 +79,21 @@ void MainWindow::on_resultButton_clicked()
     filesData->defaultFias = ui->fiasLineEdit->text();
     int succes = 0;
     int errors = 0;
+    if(ui->periodLineEdit->text().length() != 4)
+    {
+        QMessageBox::information(this, "Ошибка", "Не верно указан период!");
+        return;
+    }
+    if(ui->fiasLineEdit->text().length() != 10)
+    {
+        QMessageBox::information(this, "Ошибка", "Не верно указан ИНН организации!");
+        return;
+    }
+    if(!csvIO::getBankAccountsFromFile(&bankAccounts))
+    {
+        QMessageBox::information(this, "Ошибка", "Отсутсвует конфигурационный файл с банковскими счетами!");
+        return;
+    }
     if(filesData->csvFile == "")
     {
         QMessageBox::information(this, "Ошибка", "Не выбран файл с данными по\n Лицевым счетам!");
@@ -126,6 +141,13 @@ bool MainWindow::convert(QString filename, QString path)
         QMessageBox::information(this,"Ошибка", result);
         return false;
     }
+    QString newFileName = getNewFileName(&head);
+    if(newFileName == "")
+    {
+        QMessageBox::information(this,"Ошибка", "Не удолось сформировать новое имя файла!");
+        return false;
+    }
+    acc_file.setOutFileName(newFileName);
     for(auto i = map.begin(); i != map.end(); i++)
     {
         QString temp = i.value().getAccountNumber().toUpper();
@@ -138,7 +160,7 @@ bool MainWindow::convert(QString filename, QString path)
         i.value().setEls(foundedELS);
         //i.value().setFias(filesData->defaultFias);//remove this
     }
-    result = acc_file.saveModifedFile(&map, &head, path);
+    result = acc_file.saveModifedFile(&map, ui->periodLineEdit->text(), path);
     map.clear();
     head.clear();
     return true;
@@ -151,9 +173,23 @@ void MainWindow::loadSettings()
     filesData->csvFile = settings.value("csvFile", QVariant("")).toString();
     filesData->outPath = settings.value("outPath", QVariant("")).toString();
     defaultDataPath = settings.value("dataPath", QVariant("")).toString();
-    defaultFias = settings.value("fias", QVariant("acde8f61-fd56-4cec-a4df-1f033e2a63ee")).toString();
+    innOrg = settings.value("fias", QVariant("acde8f61-fd56-4cec-a4df-1f033e2a63ee")).toString();
     filesData->fiasFile = settings.value("fiasPath", QVariant("")).toString();
     settings.endGroup();
+}
+
+QString MainWindow::getNewFileName(QList<QString> *head)
+{
+    foreach(QString it, *head)
+    {
+        if(it.contains("#SERVICE"))
+        {
+            qDebug() << it;
+            QList<QString> list = it.split(' ');
+            if(bankAccounts.contains(list[1])) return innOrg + "_" + bankAccounts[list[1]] + ".txt";
+        }
+    }
+    return "";
 }
 
 QString MainWindow::fileList(QStringList *list)

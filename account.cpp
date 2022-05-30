@@ -15,9 +15,10 @@ Account::Account(QString fio, QString adress, QString accountNumber, QString sum
     this->pomNunber = -1;
 }
 
-QString Account::getString()
+QString Account::getString(QString period)
 {
-    return fio + ";" + els + ";" + fias + ";" + adress + ";" + accountNumber + ";" + summa;
+    //return fio + ";" + els + ";" + fias + ";" + adress + ";" + accountNumber + ";" + summa;
+    return accountNumber + ";" + els + ";" + fias + ";" + fio + ";" + adress + ";" + period + ";" + summa;
 }
 
 void Account::setEls(QString els)

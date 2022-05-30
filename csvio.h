@@ -7,14 +7,17 @@
 class csvIO
 {
     QString filename01;
+    QString filename02;
     QString getFileName(QString path);
 public:
     static void loadFiasCodes(QHash<QString, QString> &list, QHash<QString, QString> &numbers, QString &fileName01, QString &fileName02);
     csvIO(QString filename01);
     QString getFilename() const;
-    QString saveModifedFile(QMap<QString, Account> *map, QList<QString> *head, QString outPath);
+    void setOutFileName(QString filename);
+    QString saveModifedFile(QMap<QString, Account> *map, QString period, QString outPath);
     QString getDataFromFiles(QMap<QString, Account> *map, QList<QString> *head,
                              QString defFias, QHash<QString, QString> *fiasCodes);
+    static bool getBankAccountsFromFile(QHash<QString, QString> *bankAccounts);
 private:
 //    QString findFias(QString adress, QString defFias);
     int getFlat(QString fullAdress);

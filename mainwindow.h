@@ -34,11 +34,13 @@ private:
     Ui::MainWindow *ui;
     FilesData *filesData;
     QString defaultDataPath;
-    QString defaultFias;
+    QString innOrg;
     QString fileList(QStringList *list);
     QHash<QString, QString> fiasCodes;
     QHash<QString, QString> accNumbers;
+    QHash<QString, QString> bankAccounts;
     bool convert(QString filename, QString path);
     void loadSettings();
+    QString getNewFileName(QList<QString> *head);
 };
 #endif // MAINWINDOW_H

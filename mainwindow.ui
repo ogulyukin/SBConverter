@@ -40,7 +40,6 @@
           <widget class="QLabel" name="Info1Label">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -86,7 +85,6 @@
           <widget class="QLabel" name="info2Label">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -169,7 +167,6 @@
           <widget class="QLabel" name="info3Label">
            <property name="font">
             <font>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -208,7 +205,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Код фиас по умолчанию:</string>
+         <string>ИНН Организации</string>
         </property>
        </widget>
       </item>
@@ -216,9 +213,29 @@
        <widget class="QLineEdit" name="fiasLineEdit">
         <property name="font">
          <font>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Перриод ММГГ</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="periodLineEdit">
+        <property name="text">
+         <string>0522</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -272,7 +289,7 @@
      <x>0</x>
      <y>0</y>
      <width>438</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">

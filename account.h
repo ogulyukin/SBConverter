@@ -14,7 +14,7 @@ class Account
 
 public:
     explicit Account(QString fio, QString adress, QString accountNumber, QString summa, QString fias = "");
-    QString getString();
+    QString getString(QString period);
     void setEls(QString els);
     void setFias(QString fias);
     void setPomNumber(int number);
