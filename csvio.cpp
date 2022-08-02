@@ -81,12 +81,13 @@ QString csvIO::getDataFromFiles(QMap<QString, Account> *map, QList<QString> *hea
             if(list.length() < 4)
                 return "Неверный формат файла с Начислениями!";
             // Account(QString fio, QString adress, QString accountNumber, QString summa, QString fias = "");
-            Account *newAccount = new Account(list.at(0), list.at(1), list.at(2), list.at(3),
-                                              getFias(list.at(2), fiasCodes, defFias, list.at(1)));
-            map->insert(list.at(2), *newAccount);
+            Account *newAccount = new Account(list.at(0), list.at(3), list.at(4), list.at(5), list.at(2));
+                                             // getFias(list.at(4), fiasCodes, defFias, list.at(3)));
+            map->insert(list.at(4), *newAccount);
         }
         line = in2.readLine();
     }
+    qDebug() << "Размар контейнера с ЛС: " + map->size();
     file2.close();
     return "OK";
 }
