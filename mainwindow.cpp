@@ -5,7 +5,7 @@
 #include "csvio.h"
 #include <QSettings>
 
-#define version "3.0"
+#define version "4.1"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -79,6 +79,7 @@ void MainWindow::on_resultButton_clicked()
     filesData->defaultFias = ui->fiasLineEdit->text();
     int succes = 0;
     int errors = 0;
+    innOrg = ui->fiasLineEdit->text();
     if(ui->periodLineEdit->text().length() != 4)
     {
         QMessageBox::information(this, "Ошибка", "Не верно указан период!");
