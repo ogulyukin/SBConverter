@@ -87,7 +87,6 @@ QString csvIO::getDataFromFiles(QMap<QString, Account> *map, QList<QString> *hea
         }
         line = in2.readLine();
     }
-    qDebug() << "Размар контейнера с ЛС: " + map->size();
     file2.close();
     return "OK";
 }
